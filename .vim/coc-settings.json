@@ -1,0 +1,65 @@
+{
+	"prettier.tabWidth": 4,
+	"translator.toLang": "zh",
+	"translator.engines":  [
+		"youdao",
+		"bing"
+	],
+	"translator.enableHover": false,
+	"translator.maxsize": 5000,
+	"translator.window.maxWidth": 999,
+	"translator.window.maxHeight": 999,
+	"suggest.enablePreview": true,
+	"diagnostic.enableMessage": "jump",
+	"diagnostic.displayByAle": true,
+	"coc.preferences.messageLevel": "error",
+	"prettier.useTabs": false,
+	"diagnostic.enable": true,
+	"list.source.files.excludePatterns": ["**/CMakeFiles/*"],
+	"languageserver": {
+		"ccls": {
+			"command": "ccls",
+			"filetypes": ["c", "cpp", "cuda", "objc", "objcpp"],
+			"rootPatterns": [".ccls", "compile_commands.json", ".git/", ".hg/"],
+			"initializationOptions": {
+				"cache": {
+					"directory": "/tmp/ccls-cache"
+				},
+				"client": {
+					"snippetSupport": true
+				},
+				"highlight": {
+					"lsRanges" : true
+				},
+				"compilationDatabaseDirectory": "./"
+			}
+		},
+		"cmake": {
+			"command": "cmake-language-server",
+			"filetypes": ["cmake"],
+			"rootPatterns": [
+				"build/"
+			],
+			"initializationOptions": {
+				"buildDirectory": "build"
+			}
+		},
+		"golang": {
+			"command": "gopls",
+			"args": ["-remote=auto"],
+			"rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
+			"filetypes": ["go"],
+			"initializationOptions": {
+				"usePlaceholders": true,
+				"completeUnimported": true,
+				"allExperiments": true,
+				"hoverKind": "FullDocumentation"
+			}
+		},
+		"lua": {
+			"command": "lua-lsp",
+			"filetypes": ["lua"]
+		}
+	}
+}
+
