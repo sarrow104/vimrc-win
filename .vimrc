@@ -42,14 +42,16 @@ Plug 'kana/vim-textobj-syntax'
 Plug 'kana/vim-textobj-function'
 Plug 'sgur/vim-textobj-parameter' " `di,` change parameter part of a function
 
+Plug 'lvht/tagbar-markdown' " generate outline for markdown; need e-ctags
+
 " NOTE: 这是备份自
 " https://github.com/lilydjwg/dotvim/blob/master/plugin/escalt.vim
 Plug 'WinterXMQ/escalt.vim' " https://github.com/WinterXMQ/escalt.vim
 
 " needed by vim-session
-Plug 'xolox/vim-misc'
-" 支持 NERDTree 恢复的session管理工具
-Plug 'xolox/vim-session'
+"Plug 'xolox/vim-misc'
+"" 支持 NERDTree 恢复的session管理工具
+"Plug 'xolox/vim-session'
 
 Plug 'junegunn/vim-easy-align'
 Plug 'jreybert/vim-largefile' " https://github.com/jreybert/vim-largefile
@@ -91,16 +93,16 @@ set fillchars=vert:\ ,stl:\ ,stlnc:\
 set titlestring=%t%(\ %M%)%(\ (%{expand(\"%:p:~\")})%)%(\ %a%)\ -\ %{v:servername}\ %{v:this_session!=\"\"?fnamemodify(v:this_session,\":p:~\"):\"\"}
 set background=dark
 set autoindent                          " Auto-indent on
-set tabpagemax=15 			" 最多15个标签
-set showtabline=1			" 0: noshow tab line; 1: show when 2 or more tabs; 2: always
-set hlsearch				" High-Light Search on
+set tabpagemax=15                       " 最多15个标签
+set showtabline=1                       " 0: noshow tab line; 1: show when 2 or more tabs; 2: always
+set hlsearch                            " High-Light Search on
 set noswapfile                          " No swap file, use memory only
 set display=lastline
 " Show @@@ in the last line if it is truncated.
 "set display=truncate
-set wildmode=longest,full		" Cmd-line completion
+set wildmode=longest,full               " Cmd-line completion
 set nostartofline                       " Keep cursor column when moving
-set showcmd		                " display incomplete commands
+set showcmd                             " display incomplete commands
 set cmdheight=1                         " lines for command window
 set laststatus=2                        " Always show status line
 set nofoldenable
@@ -111,7 +113,7 @@ endif
 
 set backspace=indent,eol,start          " Backspace over everyting
 set autoread                 " 自动重新加载外部修改内容
-set noerrorbells		" 去掉恼人的蜂鸣声
+set noerrorbells                " 去掉恼人的蜂鸣声
 set novisualbell t_vb=
 set hidden                      " allow to cycle and hide modified buffers
 set diffopt=filler,context:5,iwhite
@@ -128,19 +130,19 @@ if v:version >= 703
     set undodir=~/.vimundo
 
     set undofile
-    if !isdirectory(&undodir)	" create undodir, if it is not exist
-	call mkdir(&undodir)
+    if !isdirectory(&undodir)   " create undodir, if it is not exist
+        call mkdir(&undodir)
     endif
 
-    "command -nargs=0	ClearVimundoFiles	call undofile#remove_invalid_undofile()
+    "command -nargs=0   ClearVimundoFiles       call undofile#remove_invalid_undofile()
 endif
-let $LANG='en_US'			" United Stats English
+let $LANG='en_US'                       " United Stats English
 
-set history=200		" keep 200 lines of command line history
-set ruler		" show the cursor position all the time
+set history=200         " keep 200 lines of command line history
+set ruler               " show the cursor position all the time
 
-set ttimeout		" time out for key codes
-set ttimeoutlen=100	" wait up to 100ms after Esc for special key
+set ttimeout            " time out for key codes
+set ttimeoutlen=100     " wait up to 100ms after Esc for special key
 
 set tabstop=4
 set shiftwidth=4
@@ -183,21 +185,37 @@ set list
 set listchars=tab:>.,trail:-,extends:\#,nbsp:.
 
 "" Key Map
-map <C-Left>	<ESC>:bprevious<CR>
-map <C-Right>	<ESC>:bnext<CR>
+map <C-Left>    <ESC>:bprevious<CR>
+map <C-Right>   <ESC>:bnext<CR>
 
 if has('gui_running')
-    nnoremap <A-h>	:bprevious<CR>
-    nnoremap <A-l>	:bnext<CR>
+    nnoremap <A-h>      :bprevious<CR>
+    nnoremap <A-l>      :bnext<CR>
 else
     " NOTE: 因为终端下，Alt-Esc不分的情况，会导致这种短快捷键，会误判。
-    nnoremap <leader>bh	:bprevious<CR>
-    nnoremap <leader>bl	:bnext<CR>
+    nnoremap <leader>bh :bprevious<CR>
+    nnoremap <leader>bl :bnext<CR>
 endif
 
 " Don't use Ex mode, use Q for formatting.
 " Revert with ":unmap Q".
 map Q gq
+
+let g:strftime_format=
+            \ '%Y'.'-'.
+            \ '%m'.'-'.
+            \ '%d'.''
+
+"let g:strftime_format=
+"           \ '%Y'.iconv('年', g:system_encoding, 'utf8').
+"           \ '%m'.iconv('月', g:system_encoding, 'utf8').
+"           \ '%d'.iconv('日', g:system_encoding, 'utf8')
+
+nnoremap <silent> <F2>  "=strftime(g:strftime_format)<CR>p
+inoremap <silent> <F2> <C-R>=strftime(g:strftime_format)<CR>
+
+nnoremap <silent> <A-F2>  "=strftime('%H:%M:%S')<CR>p
+inoremap <silent> <A-F2> <C-R>=strftime('%H:%M:%S')<CR>
 
 " CTRL-U in insert mode deletes a lot.  Use CTRL-G u to first break undo,
 " so that you can undo CTRL-U after inserting a line break.
@@ -224,11 +242,11 @@ endif
 
 function! s:SetTextTitle(val)
     if type(a:val) != type(0) || a:val <= 0
-	return
+        return
     endif
     let line = getline(".")
     if !strlen(line)
-	return
+        return
     endif
     let line = matchstr(line, '^\%(#\+\s\+\)\=\zs.\+$')
 
@@ -242,27 +260,27 @@ function! s:GetTitleLeval(line)
     return strlen(matchstr(a:line, '^#\+\%(\ \)\@='))
 endfunction
 
-function! s:TextAutoTitle()	" Auto detect titel level, and mark it! {{{1
+function! s:TextAutoTitle()     " Auto detect titel level, and mark it! {{{1
     let level = 0
     if line(".") == 1
-	let level = 1
+        let level = 1
     else
-	let line = getline(".")
-	let line = matchstr(line, '^\%(#\+\s\+\)\=\zs.\+$')
-	let line = substitute(line, '　', ' ', 'ge')
-	let line = substitute(line, '\u160', ' ', 'ge') " \u160 -> \u32
-	let line = matchstr(line, '^\s*\zs.\+$')
-	let line = matchstr(line, '^\zs.\{-}\ze\s*$')
-	if !strlen(line)
-	    return
-	end
+        let line = getline(".")
+        let line = matchstr(line, '^\%(#\+\s\+\)\=\zs.\+$')
+        let line = substitute(line, '　', ' ', 'ge')
+        let line = substitute(line, '\u160', ' ', 'ge') " \u160 -> \u32
+        let line = matchstr(line, '^\s*\zs.\+$')
+        let line = matchstr(line, '^\zs.\{-}\ze\s*$')
+        if !strlen(line)
+            return
+        end
 
-	let line = '.'.line
-	while line =~ '^\.\d\+'
-	    let level = level + 1
-	    let line = matchstr(line, '^\.\d\+\zs.\+$')
-	endwhile
-	let level = (level == 0 ? 2 : level + 1)
+        let line = '.'.line
+        while line =~ '^\.\d\+'
+            let level = level + 1
+            let line = matchstr(line, '^\.\d\+\zs.\+$')
+        endwhile
+        let level = (level == 0 ? 2 : level + 1)
     endif
     call <SID>SetTextTitle(level)
 endfunction
@@ -270,7 +288,7 @@ endfunction
 function! s:TextTitleInc() "Increase Current Chapter Title Level by ONE {{{1
     let level = s:GetTitleLeval(getline("."))
     if level < 6
-	let level = level + 1
+        let level = level + 1
     endif
     call <SID>SetTextTitle(level)
 endfunction
@@ -278,7 +296,7 @@ endfunction
 function! s:TextTitleDec() "Decrease Current Chapter Title Level by ONE {{{1
     let level = s:GetTitleLeval(getline("."))
     if level > 0
-	let level = level - 1
+        let level = level - 1
     endif
     call <SID>SetTextTitle(level)
 endfunction
@@ -329,8 +347,8 @@ endfunction
 " NOTE: `iskeyword` affect /\w/ search result
 autocmd FileType markdown
             \ call pairpunct#PairAdd_chinese_style()|
-            \ setlocal iskeyword-=` |
-            \ call s:MarkdownMaps()
+            \ call s:MarkdownMaps()|
+            \ setlocal iskeyword-=`
 
 inoremap <A-h> <Left>
 inoremap <A-j> <Down>
@@ -372,31 +390,35 @@ nnoremap <A-y> m"viw"+y`"
 noremap <M-1> :tabprevious<CR>
 noremap <M-2> :tabnext<CR>
 
-nnoremap <M-S-T>		:tabnew<CR>
-nnoremap <C-q>		    :NERDTreeFind<CR>
+nnoremap <M-S-T>                :tabnew<CR>
 
 "For editing on the command-line: >
 " start of line
-cnoremap <C-A>		<Home>
+cnoremap <C-A>          <Home>
 " back one character
-cnoremap <C-B>		<Left>
+cnoremap <C-B>          <Left>
 " delete character under cursor
-cnoremap <C-l>		<Del>
+cnoremap <C-l>          <Del>
 " end of line
-cnoremap <C-E>		<End>
+cnoremap <C-E>          <End>
 " forward one character
-"cnoremap <C-F>		<Right>
+"cnoremap <C-F>         <Right>
 " recall newer command-line
-cnoremap <C-N>		<Down>
+cnoremap <C-N>          <Down>
 " recall previous (older) command-line
-"cnoremap <C-P>		<Up>
+"cnoremap <C-P>         <Up>
 " back one word
-"cnoremap <Esc><C-B>	<S-Left>
+"cnoremap <Esc><C-B>    <S-Left>
 " forward one word
-"cnoremap <Esc><C-F>	<S-Right>
+"cnoremap <Esc><C-F>    <S-Right>
 
 nnoremap gF <C-w>gf
 vnoremap gF <C-w>gf
+
+if globpath(&rtp, 'plugin/NERD_tree.vim') != ""
+    nnoremap <C-q>                  :NERDTreeFind<CR>
+    nnoremap <Leader>e              :NERDTree<CR>
+endif
 
 if globpath(&rtp, 'plugin/coc.vim') != ""
     " popup
@@ -506,14 +528,14 @@ if globpath(&rtp, 'plugin/coc.vim') != ""
 
     " Map function and class text objects
     " NOTE: Requires 'textDocument.documentSymbol' support from the language server.
-    "xmap if <Plug>(coc-funcobj-i)
-    "omap if <Plug>(coc-funcobj-i)
-    "xmap af <Plug>(coc-funcobj-a)
-    "omap af <Plug>(coc-funcobj-a)
-    "xmap ic <Plug>(coc-classobj-i)
-    "omap ic <Plug>(coc-classobj-i)
-    "xmap ac <Plug>(coc-classobj-a)
-    "omap ac <Plug>(coc-classobj-a)
+    xmap if <Plug>(coc-funcobj-i)
+    omap if <Plug>(coc-funcobj-i)
+    xmap af <Plug>(coc-funcobj-a)
+    omap af <Plug>(coc-funcobj-a)
+    xmap ic <Plug>(coc-classobj-i)
+    omap ic <Plug>(coc-classobj-i)
+    xmap ac <Plug>(coc-classobj-a)
+    omap ac <Plug>(coc-classobj-a)
 
     " Remap <C-f> and <C-b> for scroll float windows/popups.
     " Note coc#float#scroll works on neovim >= 0.4.3 or vim >= 8.2.0750
@@ -550,8 +572,10 @@ if globpath(&rtp, 'plugin/coc.vim') != ""
     nnoremap <silent><nowait> <leader>lc  :<C-u>CocList commands<cr>
     " Find symbol of current document.
     nnoremap <silent><nowait> <leader>lo  :<C-u>CocList outline<cr>
-    " Search workspace symbols.
+    " Search workspace symbols. fuzzy, search
     nnoremap <silent><nowait> <leader>ls  :<C-u>CocList -I symbols<cr>
+    " Search workspace symbols. fuzzy, search; default under cursor symbol
+    nnoremap <silent><nowait> <leader>lu  :<C-u>execute("CocList --input=" . expand("<cword>") . " -I symbols")<cr>
 
     nnoremap <silent><nowait> <C-m> :<C-u>CocList mru<cr>
     " nnoremap <silent><nowait> <C-p> :<C-u>CocList files<cr>
@@ -575,8 +599,8 @@ if globpath(&rtp, 'plugin/coc.vim') != ""
     autocmd FileType text let b:coc_enabled = 0
     autocmd FileType json let b:coc_enabled = 0
 
-    "command! -bar -bang -nargs=0 SS :CocCommand session.save
-    "command! -bar -bang -nargs=0 OS :CocCommand session.load
+    command! -bar -bang -nargs=0 SS :CocCommand session.save
+    command! -bar -bang -nargs=0 OS :CocCommand session.load
 
 endif " endof Coc settings
 
@@ -643,13 +667,13 @@ if globpath(&rtp, 'plugin/fzf.vim') != ""
     command! -bang -nargs=? -complete=dir Files
                 \ call fzf#vim#files(<q-args>, {'options': ['--layout=reverse', '--info=inline']}, <bang>0)
     "command! -bang -nargs=? -complete=dir Files
-    "			\ call fzf#vim#files(<q-args>, {'options': ['--layout=reverse', '--info=inline', '--preview', 'cat {}']}, <bang>0)
+    "                   \ call fzf#vim#files(<q-args>, {'options': ['--layout=reverse', '--info=inline', '--preview', 'cat {}']}, <bang>0)
     "command! -bang -nargs=? -complete=dir Files
-    "			\ call fzf#vim#files(<q-args>, {'options': ['--layout=reverse', '--info=inline', '--preview', '~/.vim/plugged/fzf.vim/bin/preview.sh {}']}, <bang>0)
+    "                   \ call fzf#vim#files(<q-args>, {'options': ['--layout=reverse', '--info=inline', '--preview', '~/.vim/plugged/fzf.vim/bin/preview.sh {}']}, <bang>0)
     "command! -bang -nargs=? -complete=dir Files
-    "			\ call fzf#vim#files(<q-args>, fzf#vim#with_preview({'options': ['--layout=reverse', '--info=inline']}), <bang>0)
+    "                   \ call fzf#vim#files(<q-args>, fzf#vim#with_preview({'options': ['--layout=reverse', '--info=inline']}), <bang>0)
     "command! -bang -nargs=? -complete=dir Files
-    "			\ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
+    "                   \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
 
     nnoremap <silent><nowait> <C-p> :<C-u>Files<cr>
 endif
@@ -740,6 +764,14 @@ if globpath(&rtp, 'plugin/tagbar.vim') != ""
                 \ 'ctagsbin'  : '$GOROOT/bin/gotags',
                 \ 'ctagsargs' : '-sort -silent'
                 \ }
+
+    let g:tagbar_type_markdown = {
+                \   'ctagstype' : 'markdown',
+                \   'kinds' : [
+                \     'h:headings',
+                \   ],
+                \   'sort' : 0
+                \ }
 endif
 
 if globpath(&rtp, 'plugin/matchup.vim') != ""
@@ -751,15 +783,15 @@ if globpath(&rtp, 'plugin/gen_tags.vim') != ""
 endif
 
 if globpath(&rtp, 'plugin/airline.vim') != ""
-	let g:airline_theme="badwolf"
-	let g:airline_power_fonts=1
-	let g:airline#extensions#tabline#enabled=1
-	let g:airline#extensions#tabline#left_sep = ' '
-	let g:airline#extensions#tabline#left_alt_sep='|'
+        let g:airline_theme="badwolf"
+        let g:airline_power_fonts=1
+        let g:airline#extensions#tabline#enabled=1
+        let g:airline#extensions#tabline#left_sep = ' '
+        let g:airline#extensions#tabline#left_alt_sep='|'
 
-	if !exists('g:airline_symbols')
-		let g:airline_symbols={}
-	endif
+        if !exists('g:airline_symbols')
+                let g:airline_symbols={}
+        endif
 endif
 
 if globpath(&rtp, 'plugin/ctrlsf.vim') != ""
@@ -781,13 +813,18 @@ if globpath(&rtp, 'plugin/ctrlsf.vim') != ""
     let g:ctrlsf_follow_symlinks = 1
 endif
 
+if globpath(&rtp, 'plugin/mark.vim') != ""
+    nmap <unique> <Leader>m/ <Plug>MarkSearchAnyNext
+    nmap <unique> <Leader>m? <Plug>MarkSearchAnyPrev
+endif
+
 if globpath(&rtp, 'plugin/session.vim') != ""
-    command! -bar -bang -nargs=? -complete=customlist,xolox#session#complete_names_with_suggestions
-                \ SS
-                \ call xolox#session#save_cmd(<q-args>, <q-bang>, 'SaveSession')
-    command! -bar -bang -nargs=? -complete=customlist,xolox#session#complete_names
-                \ OS
-                \ call xolox#session#open_cmd(<q-args>, <q-bang>, 'OpenSession')
+"    command! -bar -bang -nargs=? -complete=customlist,xolox#session#complete_names_with_suggestions
+"                \ SS
+"                \ call xolox#session#save_cmd(<q-args>, <q-bang>, 'SaveSession')
+"    command! -bar -bang -nargs=? -complete=customlist,xolox#session#complete_names
+"                \ OS
+"                \ call xolox#session#open_cmd(<q-args>, <q-bang>, 'OpenSession')
     let g:session_autoload = 'no'
 endif
 
@@ -845,7 +882,7 @@ function! OnVimLeavePre()
     call Message_Debug("e:/onVimLeavePre.log", 0)
 endfunction
 
-command -nargs=0	MessageDebug  	call Message_Debug_clipboard()
+command -nargs=0        MessageDebug    call Message_Debug_clipboard()
 
 " 返回符合 pattern 的内容的集合——利用系统剪贴板传递数据——以及出现的次数
 " TODO 把下面的功能，做成一个插件的形式。
@@ -872,18 +909,18 @@ function! g:CollectMatch(line1, line2, pattern)
     let _v_str_ = []
     execute a:line1
     while search(a:pattern, 'cW', a:line2) > 0
-	normal ma
-	call search(a:pattern, 'cWe', a:line2)
-	normal mb
-	normal `av`by
-	let _key_ = @"
-	if !has_key(_ret_, _key_)
-	    let _ret_[_key_] = 1
-	    call add(_v_str_, _key_)
-	else
-	    let _ret_[_key_] += 1
-	endif
-	normal `b
+        normal ma
+        call search(a:pattern, 'cWe', a:line2)
+        normal mb
+        normal `av`by
+        let _key_ = @"
+        if !has_key(_ret_, _key_)
+            let _ret_[_key_] = 1
+            call add(_v_str_, _key_)
+        else
+            let _ret_[_key_] += 1
+        endif
+        normal `b
     endwhile
 
     for key in _v_str_
@@ -898,8 +935,8 @@ function! g:CollectMatch(line1, line2, pattern)
 endfunction
 
 " TODO
-"command! -nargs=? -range=% -complete=custom,CollectPreDefined Collect	call g:CollectMatch(<line1>, <line2>, <q-args>)
-command! -nargs=? -range=% Collect	call g:CollectMatch(<line1>, <line2>, <q-args>)
+"command! -nargs=? -range=% -complete=custom,CollectPreDefined Collect  call g:CollectMatch(<line1>, <line2>, <q-args>)
+command! -nargs=? -range=% Collect      call g:CollectMatch(<line1>, <line2>, <q-args>)
 
 " Before exiting Vim, just after writing the .viminfo file
 autocmd VimLeave    call s:OnVimLeave()
