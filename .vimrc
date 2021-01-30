@@ -60,6 +60,8 @@ Plug 'will133/vim-dirdiff'    " 目录比较工具
 " NOTE: svn 常用命令映射——终端输出字符集需要跳转；是否可参考，sqldbext调整？
 Plug 'juneedahamed/svnj.vim' " https://github.com/juneedahamed/svnj.vim
 
+Plug 'OrangeT/vim-csharp' " https://github.com/OrangeT/vim-csharp
+
 "Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 "Plug 'junegunn/fzf.vim'
 Plug 'dyng/ctrlsf.vim' " https://github.com/dyng/ctrlsf.vim | Search tool; using ack, ag or pt
@@ -311,13 +313,44 @@ function! s:AddLink()
     endif
 endfunction
 
+function! s:MdPasteLink_Func()
+    " let l:url = @+
+    let l:url = substitute(@+, '[|:]\d\+$', '', 'g')
+    let l:name = fnamemodify(l:url, ":t:r")
+    let l:relative = '/' . fnamemodify(l:url, ":.")
+    let l:relative = substitute(l:relative, "\\", '/', 'g')
+    call setline('.', getline('.') . '[' . l:name . '](' . l:relative . ')')
+endfunction
+
+function! s:Md_wrap(prefix, suffix, newline)
+    " push state
+    let _tw_=&tw
+    let &tw=0
+    let _tmp_a_=@a
+    normal gv"ay
+
+    if a:newline != 0
+        execute "silent normal! `>a\<CR>\<C-u>\<C-R>=a:suffix\<CR>\<ESC>"
+        execute "silent normal! `<i\<CR>\<C-u>\<C-R>=a:prefix\<CR>\<CR>\<ESC>"
+    else
+        execute "silent normal! `>a\<C-R>=a:suffix\<CR>\<ESC>"
+        execute "silent normal! `<i\<C-R>=a:prefix\<CR>\<ESC>"
+    endif
+
+    " pop state
+    let @a=_tmp_a_
+    let &tw=_tw_
+endfunction
+
 function! s:MarkdownMaps()
     nnoremap <buffer> <A-s>1 o<ESC>70i-<ESC>o<ESC>
     nnoremap <buffer> <A-s>2 o<ESC>70i=<ESC>o<ESC>
     vnoremap <buffer> <A-s>1 c<CR><C-o>70i-<ESC>o<ESC>
     vnoremap <buffer> <A-s>2 c<CR><C-o>70i=<ESC>o<ESC>
+
     inoremap <buffer> <A-s>1 <CR><C-o>70i-<ESC>o
     inoremap <buffer> <A-s>2 <CR><C-o>70i=<ESC>o
+
     nnoremap <buffer> tt :call <SID>TextAutoTitle()<CR>
 
     nnoremap <buffer> t1 :call <SID>SetTextTitle(1)<CR>
@@ -341,6 +374,14 @@ function! s:MarkdownMaps()
 
     nnoremap <buffer> <leader>aa viw:call <SID>AddLink()<CR>
     vnoremap <buffer> <leader>aa :call <SID>AddLink()<CR>
+
+    vnoremap <buffer> !!  <ESC>:call <SID>Md_wrap('[', ']('.@+.')', 0)<CR>
+    vnoremap <buffer> **  <ESC>:call <SID>Md_wrap('**', '**', 0)<CR>
+    vnoremap <buffer> _   <ESC>:call <SID>Md_wrap('_', '_', 0)<CR>
+
+    inoremap <buffer> ``` <ESC>:call setline(line('.'), ' ')<CR>v<ESC>:call <SID>Md_wrap('```', '```', 1)<CR>ddkA
+
+    command! -buffer MdPasteLink call s:MdPasteLink_Func()
 endfunction
 
 " FileType: markdown {{{2
@@ -386,6 +427,18 @@ noremap <A-c> ciw
 
 vnoremap <A-y> "+y
 nnoremap <A-y> m"viw"+y`"
+
+" Move lines in visual-mode only
+xnoremap <C-j> :move '>+1<CR>gv
+xnoremap <C-k> :move '<-2<CR>gv
+
+" Move lines
+nnoremap <C-Down> 	:<C-u>move .+1<CR>
+nnoremap <C-Up> 	:<C-u>move .-2<CR>
+inoremap <C-Down> 	<C-o>:<C-u>move .+1<CR>
+inoremap <C-Up> 	<C-o>:<C-u>move .-2<CR>
+vnoremap <C-Down> 	:move '>+1<CR>gv
+vnoremap <C-Up> 	:move '<-2<CR>gv
 
 noremap <M-1> :tabprevious<CR>
 noremap <M-2> :tabnext<CR>
@@ -933,6 +986,83 @@ function! g:CollectMatch(line1, line2, pattern)
     call setreg('"', _reg_q_)
     execute _current_line_
 endfunction
+
+function! s:DirName(path)	"{{{2
+    return fnamemodify(a:path, ':p:h')
+endfunction
+
+function! s:BaseName(path)	"{{{2
+    return fnamemodify(a:path, ':t')
+endfunction
+
+function! s:ForceWrite(path)	"{{{2
+    let prev_stems = s:DirName(a:path)
+    if s:CreatePath(prev_stems) == 0
+	call msg#ErrorMsg('cannot mkdir `'.prev_stems.'`')
+	call msg#ErrorMsg('cannot write to file: `'.a:path.'`')
+	return 0
+    endif
+    execute 'w! '.a:path
+endfunction
+
+function! s:ForceSave(path)	"{{{2
+    let prev_stems = s:DirName(a:path)
+    if s:CreatePath(prev_stems) == 0
+	call msg#ErrorMsg('cannot mkdir `'.prev_stems.'`')
+	call msg#ErrorMsg('cannot write to file: `'.a:path.'`')
+	return 0
+    endif
+    execute 'sav! '.a:path
+endfunction
+
+function! s:CreatePath(path)	"{{{2
+    if !isdirectory(a:path)
+	if s:CreatePath(s:DirName(a:path)) == 0
+	    return 0
+	endif
+	echomsg 'mkdir '.a:path
+	let dir_to_make = system#ToTermEnc(a:path)
+	if mkdir(dir_to_make) ==  0
+	    return 0
+	endif
+    endif
+    return 1
+endfunction
+
+command -nargs=1 -complete=file Sav	call s:ForceSave(<q-args>)
+command -nargs=1 -complete=file Write	call s:ForceWrite(<q-args>)
+
+function! s:EditAndJump(path, new) " {{{2
+    let l:num = -1
+    let l:path = a:path
+
+    if !filereadable(l:path)
+        let l:matched = matchlist(a:path,  '^\(.\{-}\)\%(|\|:\)\(\d\+\)$')
+        if !empty(l:matched) && len(l:matched[2]) > 0
+            let l:num = l:matched[2]
+            let l:path = l:matched[1]
+        endif
+    endif
+
+    " NOTE: no need to check filereadable()!
+    "if !filereadable(l:path)
+    "    echohl WarningMsg
+    "    echo "file \"" . l:path . "\" not readable"
+    "    echohl NONE
+    "    return
+    "endif
+    if a:new != 0
+        silent execute "new "  . l:path
+    else
+        silent execute "edit " . l:path
+    endif
+    if l:num > 0 && filereadable(l:path)
+        silent execute l:num
+    endif
+endfunction
+
+command -nargs=1 -complete=file Edit	call s:EditAndJump(<q-args>, 0)
+command -nargs=1 -complete=file New	call s:EditAndJump(<q-args>, 1)
 
 " TODO
 "command! -nargs=? -range=% -complete=custom,CollectPreDefined Collect  call g:CollectMatch(<line1>, <line2>, <q-args>)
