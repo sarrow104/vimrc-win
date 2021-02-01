@@ -47,6 +47,7 @@ Plug 'lvht/tagbar-markdown' " generate outline for markdown; need e-ctags
 " NOTE: 这是备份自
 " https://github.com/lilydjwg/dotvim/blob/master/plugin/escalt.vim
 Plug 'WinterXMQ/escalt.vim' " https://github.com/WinterXMQ/escalt.vim
+Plug 'alunny/pegjs-vim' " https://github.com/alunny/pegjs-vim
 
 " needed by vim-session
 "Plug 'xolox/vim-misc'
@@ -448,14 +449,14 @@ nnoremap <M-S-T>                :tabnew<CR>
 "For editing on the command-line: >
 " start of line
 cnoremap <C-A>          <Home>
-" back one character
-cnoremap <C-B>          <Left>
 " delete character under cursor
 cnoremap <C-l>          <Del>
 " end of line
 cnoremap <C-E>          <End>
+" back one character
+cnoremap <A-h>          <Left>
 " forward one character
-"cnoremap <C-F>         <Right>
+cnoremap <A-l>          <Right>
 " recall newer command-line
 cnoremap <C-N>          <Down>
 " recall previous (older) command-line
@@ -1067,6 +1068,9 @@ command -nargs=1 -complete=file New	call s:EditAndJump(<q-args>, 1)
 " TODO
 "command! -nargs=? -range=% -complete=custom,CollectPreDefined Collect  call g:CollectMatch(<line1>, <line2>, <q-args>)
 command! -nargs=? -range=% Collect      call g:CollectMatch(<line1>, <line2>, <q-args>)
+
+command! -nargs=? -complete=dir CD				:silent execute 'cd '
+	    \ . escape(expand('%:h') =~ '[\\/]$' ? expand('%:h') : expand('%:h') . '/', ' ()[]').'<args>'
 
 " Before exiting Vim, just after writing the .viminfo file
 autocmd VimLeave    call s:OnVimLeave()
