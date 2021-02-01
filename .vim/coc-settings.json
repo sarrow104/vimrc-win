@@ -1,1 +1,81 @@
-C:/Users/1/vimfiles/coc-settings.json
+{
+	"prettier.tabWidth": 4,
+	"translator.toLang": "zh",
+	"translator.engines":  [
+		"youdao",
+		"bing"
+	],
+	"translator.enableHover": false,
+	"translator.maxsize": 5000,
+	"translator.window.maxWidth": 999,
+	"translator.window.maxHeight": 999,
+	"suggest.enablePreview": true,
+	"diagnostic.enableMessage": "jump",
+	"diagnostic.displayByAle": true,
+	"diagnostic.enable": true,
+	"coc.preferences.messageLevel": "error",
+	"prettier.useTabs": false,
+	"session.directory": "~/.vim/sessions",
+	"list.source.files.excludePatterns": ["**/CMakeFiles/*"],
+    "languageserver": {
+        "ccls": {
+            "command": "ccls",
+            "filetypes": ["c", "cpp", "cuda", "objc", "objcpp"],
+            "rootPatterns": [".ccls", "compile_commands.json", ".git/", ".hg/"],
+            "initializationOptions": {
+                "cache": {
+                    "directory": "/tmp/ccls-cache"
+                },
+                "client": {
+                    "snippetSupport": true
+                },
+                "highlight": {
+                    "lsRanges" : true
+                },
+                "compilationDatabaseDirectory": "./"
+            }
+        },
+        "cmake": {
+            "command": "cmake-language-server",
+            "filetypes": ["cmake"],
+            "rootPatterns": [
+                "build/"
+            ],
+            "initializationOptions": {
+                "buildDirectory": "build"
+            }
+        },
+        "golang": {
+            "command": "gopls",
+            "args": ["-remote=auto"],
+            "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
+            "filetypes": ["go"],
+            "initializationOptions": {
+                "usePlaceholders": true,
+                "completeUnimported": true,
+                "allExperiments": true,
+                "hoverKind": "FullDocumentation"
+            }
+        },
+        "lua": {
+            "command": "C:/Users/1/.vscode/extensions/sumneko.lua-1.11.2/server/bin/Windows/lua-language-server.exe",
+            "args": ["-E", "-e", "LANG=en", "C:/Users/1/.vscode/extensions/sumneko.lua-1.11.2/server/main.lua"],
+            "filetypes": ["lua"],
+            "rootPatterns": [".git/"],
+            "settings": {
+                "Lua": {
+                    "diagnostics": {
+                        "enable": true,
+                        "globals": ["hs", "vim", "it", "describe", "before_each", "after_each"],
+                        "disable": ["lowercase-global"]
+                    },
+                    "completion": {
+                        "keywordSnippet": "Disable"
+                    }
+                }
+            }
+        }
+
+    }
+}
+
