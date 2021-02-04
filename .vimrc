@@ -4,6 +4,8 @@ set nocompatible                           " be iMproved, required
 set langmenu=none
 filetype off
 
+set rtp+=$HOME/.vim
+
 call plug#begin('~/.vim/plugged')
 Plug 'sarrow104/util.vim' " util#MySys()
 Plug 'sarrow104/msg.vim'  " msg#xxx()
@@ -475,6 +477,8 @@ if globpath(&rtp, 'plugin/NERD_tree.vim') != ""
 endif
 
 if globpath(&rtp, 'plugin/coc.vim') != ""
+    let g:coc_config_home = '~/.vim'
+
     " popup
     nmap <leader>tt <Plug>(coc-translator-p)
     vmap <leader>tt <Plug>(coc-translator-pv)
