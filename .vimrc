@@ -1076,6 +1076,21 @@ command! -nargs=? -range=% Collect      call g:CollectMatch(<line1>, <line2>, <q
 command! -nargs=? -complete=dir CD				:silent execute 'cd '
 	    \ . escape(expand('%:h') =~ '[\\/]$' ? expand('%:h') : expand('%:h') . '/', ' ()[]').'<args>'
 
+function! g:DeleteEmptyBuffers()
+    let [i, n; empty] = [1, bufnr('$')]
+    while i <= n
+        if bufexists(i) && bufname(i) == ''
+            call add(empty, i)
+        endif
+        let i += 1
+    endwhile
+    if len(empty) > 0
+        exe 'bdelete' join(empty)
+    endif
+endfunction
+
+command! -nargs=0 DelEmptyBuffers call g:DeleteEmptyBuffers()
+
 " Before exiting Vim, just after writing the .viminfo file
 autocmd VimLeave    call s:OnVimLeave()
 " Before exiting Vim, just before writing the .viminfo file
